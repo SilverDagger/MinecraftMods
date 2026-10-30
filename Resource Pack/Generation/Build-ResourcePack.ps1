@@ -56,6 +56,8 @@ $outputPath = $null
 $outputStream = $null
 $uuidPath = $null
 $uuidCreated = $false
+$sha1Path = $null
+$sha1Created = $false
 try {
     foreach ($name in $order) {
         $zip = [IO.Compression.ZipFile]::OpenRead((Join-Path $RawDirectory $name))
@@ -102,10 +104,11 @@ try {
     }
 
     if (-not (Test-Path -LiteralPath $OutputDirectory -PathType Container)) { New-Item -ItemType Directory -Path $OutputDirectory | Out-Null }
-    $stamp = Get-Date -Format 'dd.MM.yy'
+    $stamp = Get-Date -Format 'yy.MM.dd'
     foreach ($suffix in @('') + @([char[]](97..122) | ForEach-Object { "$_" })) {
         $candidate = Join-Path $OutputDirectory "SUCCU_ResourcePack_$stamp$suffix.zip"
-        if (Test-Path -LiteralPath ([IO.Path]::ChangeExtension($candidate, '.uuid'))) { continue }
+        if ((Test-Path -LiteralPath ([IO.Path]::ChangeExtension($candidate, '.uuid'))) -or
+            (Test-Path -LiteralPath ([IO.Path]::ChangeExtension($candidate, '.sha1')))) { continue }
         try {
             $outputStream = [IO.File]::Open($candidate, [IO.FileMode]::CreateNew, [IO.FileAccess]::Write)
             $outputPath = $candidate
@@ -143,11 +146,21 @@ try {
         $uuidWriter = [IO.StreamWriter]::new($uuidStream, [Text.UTF8Encoding]::new($false))
         try { $uuidWriter.WriteLine($uuid) } finally { $uuidWriter.Dispose() }
     } finally { $uuidStream.Dispose() }
+    $sha1 = (Get-FileHash -LiteralPath $outputPath -Algorithm SHA1).Hash.ToLowerInvariant()
+    $sha1Path = [IO.Path]::ChangeExtension($outputPath, '.sha1')
+    $sha1Stream = [IO.File]::Open($sha1Path, [IO.FileMode]::CreateNew, [IO.FileAccess]::Write)
+    $sha1Created = $true
+    try {
+        $sha1Writer = [IO.StreamWriter]::new($sha1Stream, [Text.UTF8Encoding]::new($false))
+        try { $sha1Writer.WriteLine($sha1) } finally { $sha1Writer.Dispose() }
+    } finally { $sha1Stream.Dispose() }
     Write-Host "Created $outputPath ($($merged.Count) combined files)."
     Write-Host "Resource pack UUID: $uuid (saved to $uuidPath)"
+    Write-Host "Resource pack SHA-1: $sha1 (saved to $sha1Path)"
     foreach ($pair in @($collisions.GetEnumerator() | Sort-Object Key)) { Write-Host "  $($pair.Key) replaced $($pair.Value) earlier paths" }
 } catch {
     if ($null -ne $outputStream) { $outputStream.Dispose() }
+    if ($sha1Created -and (Test-Path -LiteralPath $sha1Path)) { Remove-Item -LiteralPath $sha1Path -Force }
     if ($uuidCreated -and (Test-Path -LiteralPath $uuidPath)) { Remove-Item -LiteralPath $uuidPath -Force }
     if ($null -ne $outputPath -and (Test-Path -LiteralPath $outputPath)) { Remove-Item -LiteralPath $outputPath -Force }
     throw
