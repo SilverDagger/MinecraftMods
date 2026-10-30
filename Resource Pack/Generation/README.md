@@ -11,9 +11,13 @@ The order file targets Minecraft 1.21.1, whose resource pack format is 34. This 
 ## Why this order
 
 - Minecraft uses the upper pack when two resource packs contain the same path. The JSON lists the inverse order, low priority first, because the script writes later entries over earlier ones. [Minecraft Wiki: resource pack precedence](https://minecraft.wiki/w/Resource_pack)
-- Whimscape is a broad visual base; its Cobblemon, Exploration, and Trinkets add-ons follow it. Vanilla Tweaks and small item packs are placed above the broad base as local preference. This is a chosen conflict policy, not a universal author requirement. [Whimscape x Cobblemon](https://modrinth.com/resourcepack/whimscape-x-cobblemon)
+- Whimscape is the visual base; its Cobblemon, Exploration, and Trinkets add-ons follow it. Vanilla Tweaks is below Whimscape because its randomized grass and dirt blockstates conflict with Whimscape's textures. Vanilla Tweaks paths that Whimscape does not replace remain available. Small item packs follow the broad base as a local preference. [Whimscape x Cobblemon](https://modrinth.com/resourcepack/whimscape-x-cobblemon)
 - Fresh Animations precedes its compatibility pack. The refreshed base packs precede their `-fa` variants, so the variants can replace shared files. Fresh Animations says extensions belong above it; Fresh Compats requires Fresh Animations. [Fresh Animations](https://modrinth.com/resourcepack/fresh-animations), [Fresh Compats](https://modrinth.com/resourcepack/fresh-compats)
 - Better Cats precedes Fresh Better Cats. The Better Cats author recommends high priority to avoid texture conflicts; its Fresh adaptation is placed later to win where it overlaps. [Better Cats](https://modrinth.com/mod/better-cats)
 - The Cobblemon packs and Vivillon pack are late because they make narrow changes. Their relative order is a local preference where no clear author rule was found.
 
 This build is for local use. Some source pack licenses restrict redistribution of a merged ZIP; check each pack's terms before sharing it.
+
+## In-game checks
+
+Test in a copied world with only the newly built SUCCU pack enabled. Reload resources with F3+T, then place a flat patch and a small hole of grass, dirt, and coarse dirt in one biome. Compare it with Whimscape alone and Vanilla Tweaks alone, keeping shaders off for the first comparison. Walk around the patch and reload resources again; the Whimscape grass blockstate intentionally has a few random variants, but grass should no longer use Vanilla Tweaks' separate variated models. Then test snow-covered grass, dirt paths, glass connections, mobs, Cobblemon, books, armor, and the interface. Add any other resource packs and shaders back one at a time. If the problem appears only with a shader, inspect its settings separately from the ZIP merge.
