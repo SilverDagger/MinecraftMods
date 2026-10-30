@@ -15,9 +15,27 @@ The order file targets Minecraft 1.21.1, whose resource pack format is 34. This 
 - Fresh Animations precedes its compatibility pack. The refreshed base packs precede their `-fa` variants, so the variants can replace shared files. Fresh Animations says extensions belong above it; Fresh Compats requires Fresh Animations. [Fresh Animations](https://modrinth.com/resourcepack/fresh-animations), [Fresh Compats](https://modrinth.com/resourcepack/fresh-compats)
 - Better Cats precedes Fresh Better Cats. The Better Cats author recommends high priority to avoid texture conflicts; its Fresh adaptation is placed later to win where it overlaps. [Better Cats](https://modrinth.com/mod/better-cats)
 - The Cobblemon packs and Vivillon pack are late because they make narrow changes. Their relative order is a local preference where no clear author rule was found.
+- Maxi's JourneyMap Cobblemon Minimap Icons U11 follows E19 in the order file. Its 2,945 `assets/cobblemon` icon files have no path collisions with the other source ZIPs, so this placement keeps the map icon packs together without changing E19's assets. U11 targets Minecraft 1.21.1; the author's [U11 release notes](https://modrinth.com/resourcepack/maxis-journeymap-cobblemon-icons/version/U11?dep=1) say it was tested with JourneyMap 6.0.0 beta 56. The installed JourneyMap file is 6.0.9. In JourneyMap, set Mob Display to Icons for the minimap preset and fullscreen map to see the icons.
 
 This build is for local use. Some source pack licenses restrict redistribution of a merged ZIP; check each pack's terms before sharing it.
 
 ## In-game checks
 
 Test in a copied world with only the newly built SUCCU pack enabled. Reload resources with F3+T, then place a flat patch and a small hole of grass, dirt, and coarse dirt in one biome. Compare it with Whimscape alone and Vanilla Tweaks alone, keeping shaders off for the first comparison. Walk around the patch and reload resources again; the Whimscape grass blockstate intentionally has a few random variants, but grass should no longer use Vanilla Tweaks' separate variated models. Then test snow-covered grass, dirt paths, glass connections, mobs, Cobblemon, books, armor, and the interface. Add any other resource packs and shaders back one at a time. If the problem appears only with a shader, inspect its settings separately from the ZIP merge.
+
+## Minecart and selected hotbar item fixes (Minecraft 1.21.1)
+
+The 2026-10-29 screenshots showed a distorted minecart inventory icon and an item hidden in the selected hotbar slot. The builder now makes two targeted corrections for pack format 34:
+
+- Whimscape's `format_18-42` overlay supplies 3D models for the six vanilla minecart items. The build omits those six item model JSON files, so Minecraft uses its built-in flat item models with Whimscape's `assets/minecraft/textures/item/*minecart.png` textures. This is a conservative visual workaround for the reported minecart appearance; the source packs and placed minecart entity textures are unchanged.
+- Cobblemon Interface is later than Whimscape and replaces `assets/minecraft/textures/gui/sprites/hud/hotbar_selection.png`. Its 24×23 selection PNG has an opaque center (544 opaque pixels, only 8 transparent), while Whimscape's center is transparent. The build explicitly takes Whimscape's selection sprite after merging, retaining the rest of Cobblemon Interface's GUI.
+
+The corrected local build is `SUCCU_ResourcePack_26.10.29b.zip`, with matching `.uuid` and `.sha1` files. To test it, enable only that ZIP, reload with F3+T, select several hotbar slots, and compare a regular and chest minecart in the inventory. The ZIP contents were checked, but the result has not been verified in a running client. If the server serves the ZIP, update its `resource-pack-id` and `resource-pack-sha1` to match the new sidecar files before testing the server copy.
+
+The subsequent `SUCCU_ResourcePack_26.10.29c.zip` includes Maxi's U11 icons and retains these two fixes. Use its own `.uuid` and `.sha1` sidecars if serving that version.
+
+## Floating nameplate comparison build
+
+If floating player and Pokémon names become black rectangles only while an Iris shader pack is active, use `SUCCU_ResourcePack_26.10.29d.zip` as a comparison build. It differs from `...29c.zip` only by omitting Cobblemon Interface's `assets/minecraft/shaders/core/rendertype_text.fsh` and `rendertype_text_intensity.fsh`, allowing Minecraft's built-in text shaders to load. Build another comparison ZIP with `powershell -ExecutionPolicy Bypass -File '.\Resource Pack\Generation\Build-ResourcePack.ps1' -UseVanillaTextShaders`. The normal build retains the original source shaders.
+
+With the same shader pack, settings, client, and world, enable only `...29d.zip` and compare player and Pokémon names to `...29c.zip`. If the blackout disappears, the custom text shader is involved and this comparison build can serve as a workaround. If it remains, inspect the active shader pack and Iris version; the resource pack change did not address the cause. The comparison ZIP has not been tested in a running client. Its server `resource-pack-id` and `resource-pack-sha1` must use the `...29d` sidecars if served from a server.

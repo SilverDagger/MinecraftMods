@@ -1,7 +1,8 @@
 param(
     [string]$RawDirectory = (Join-Path (Split-Path $PSScriptRoot -Parent) 'Raw'),
     [string]$OrderFile = (Join-Path $PSScriptRoot 'order.json'),
-    [string]$OutputDirectory = (Split-Path $PSScriptRoot -Parent)
+    [string]$OutputDirectory = (Split-Path $PSScriptRoot -Parent),
+    [switch]$UseVanillaTextShaders
 )
 
 $ErrorActionPreference = 'Stop'
@@ -101,6 +102,33 @@ try {
             $merged[$pair.Key] = $pair.Value
         }
         Write-Host ("Applied {0}: {1} asset files" -f $name, $local.Count)
+    }
+
+    if ($format -eq 34) {
+        # Whimscape's 3D minecart inventory models render incorrectly in this pack.
+        # Let Minecraft's built-in flat models use Whimscape's item textures instead.
+        foreach ($item in @('minecart', 'chest_minecart', 'command_block_minecart', 'furnace_minecart', 'hopper_minecart', 'tnt_minecart')) {
+            $path = "assets/minecraft/models/item/$item.json"
+            if (-not $merged.Remove($path)) { throw "Missing minecart model for manual fix: $path" }
+        }
+
+        # Cobblemon Interface's selection sprite is opaque over the selected item.
+        $whimscapeIndex = [Array]::IndexOf($order, 'Whimscape_1.20.2-1.21.11_r7.zip')
+        if ($whimscapeIndex -lt 0) { throw 'Missing Whimscape source for hotbar selection fix.' }
+        $selectionPath = 'assets/minecraft/textures/gui/sprites/hud/hotbar_selection.png'
+        $selectionEntry = $archives[$whimscapeIndex].GetEntry($selectionPath)
+        if ($null -eq $selectionEntry) { throw "Missing Whimscape hotbar selection sprite: $selectionPath" }
+        $merged[$selectionPath] = $selectionEntry
+    }
+
+    if ($UseVanillaTextShaders) {
+        foreach ($path in @(
+            'assets/minecraft/shaders/core/rendertype_text.fsh',
+            'assets/minecraft/shaders/core/rendertype_text_intensity.fsh'
+        )) {
+            if (-not $merged.Remove($path)) { throw "Missing custom text shader for comparison build: $path" }
+        }
+        Write-Host 'Using Minecraft built-in text shaders for comparison build.'
     }
 
     if (-not (Test-Path -LiteralPath $OutputDirectory -PathType Container)) { New-Item -ItemType Directory -Path $OutputDirectory | Out-Null }
