@@ -15,7 +15,7 @@ The order file targets Minecraft 1.21.1, whose resource pack format is 34. This 
 - Fresh Animations precedes its compatibility pack. The refreshed base packs precede their `-fa` variants, so the variants can replace shared files. Fresh Animations says extensions belong above it; Fresh Compats requires Fresh Animations. [Fresh Animations](https://modrinth.com/resourcepack/fresh-animations), [Fresh Compats](https://modrinth.com/resourcepack/fresh-compats)
 - Better Cats precedes Fresh Better Cats. The Better Cats author recommends high priority to avoid texture conflicts; its Fresh adaptation is placed later to win where it overlaps. [Better Cats](https://modrinth.com/mod/better-cats)
 - The Cobblemon packs and Vivillon pack are late because they make narrow changes. Their relative order is a local preference where no clear author rule was found.
-- Maxi's JourneyMap Cobblemon Minimap Icons U11 follows E19 in the order file. Its 2,945 `assets/cobblemon` icon files have no path collisions with the other source ZIPs, so this placement keeps the map icon packs together without changing E19's assets. U11 targets Minecraft 1.21.1; the author's [U11 release notes](https://modrinth.com/resourcepack/maxis-journeymap-cobblemon-icons/version/U11?dep=1) say it was tested with JourneyMap 6.0.0 beta 56. The installed JourneyMap file is 6.0.9. In JourneyMap, set Mob Display to Icons for the minimap preset and fullscreen map to see the icons.
+- The trimmed Maxi's JourneyMap Cobblemon Minimap Icons U11 ZIP follows E19 in the order file. It contains 2,945 `assets/cobblemon/textures/entity_icon` PNGs. The original U11 ZIP was replaced with this local variant, which crops transparent borders from the icons. U11 targets Minecraft 1.21.1; the author's [U11 release notes](https://modrinth.com/resourcepack/maxis-journeymap-cobblemon-icons/version/U11?dep=1) say it was tested with JourneyMap 6.0.0 beta 56. In JourneyMap, set Mob Display to Icons for the minimap preset and fullscreen map to see the icons. `Trim-EntityIcons.ps1` is the helper used on an extracted `Maxi's-JM+CM_Pixel-U11` folder beside the script; it does not run during the combined-pack build.
 
 This build is for local use. Some source pack licenses restrict redistribution of a merged ZIP; check each pack's terms before sharing it.
 
@@ -33,6 +33,12 @@ The 2026-10-29 screenshots showed a distorted minecart inventory icon and an ite
 The corrected local build is `SUCCU_ResourcePack_26.10.29b.zip`, with matching `.uuid` and `.sha1` files. To test it, enable only that ZIP, reload with F3+T, select several hotbar slots, and compare a regular and chest minecart in the inventory. The ZIP contents were checked, but the result has not been verified in a running client. If the server serves the ZIP, update its `resource-pack-id` and `resource-pack-sha1` to match the new sidecar files before testing the server copy.
 
 The subsequent `SUCCU_ResourcePack_26.10.29c.zip` includes Maxi's U11 icons and retains these two fixes. Use its own `.uuid` and `.sha1` sidecars if serving that version.
+
+## October 30 build and boat inventory icons
+
+`SUCCU_ResourcePack_26.10.30.zip` uses the trimmed Maxi icon ZIP and the same `-UseVanillaTextShaders` option as variant d. It also omits Whimscape's format 34 inventory models for the nine wooden boat/chest boat pairs and the bamboo raft/chest raft pair. Minecraft 1.21.1 can then use its built-in flat item models. The merged pack retains the entity boat textures and other Whimscape assets. This targets the black/magenta boat icons reported in chest inventories; verify the result in game after reloading resources with F3+T. The ZIP was checked locally, but no client test has been performed.
+
+The current ZIP's UUID is in `SUCCU_ResourcePack_26.10.30.uuid`; its SHA-1 is in `SUCCU_ResourcePack_26.10.30.sha1`. The older `SUCCU_ResourcePack_24.4.27.zip` now has its own matching `.uuid` and `.sha1` companions. Use the sidecars that match the exact ZIP served to players. Generated and source ZIPs are tracked through Git LFS; `.sha1` and `.uuid` remain ordinary Git text files.
 
 ## Floating nameplate comparison build
 

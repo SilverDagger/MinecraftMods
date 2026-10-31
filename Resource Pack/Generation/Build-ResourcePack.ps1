@@ -112,6 +112,19 @@ try {
             if (-not $merged.Remove($path)) { throw "Missing minecart model for manual fix: $path" }
         }
 
+        # Whimscape's format_18-42 overlay also supplies 3D inventory boat models.
+        # Minecraft 1.21.1 can use its built-in flat boat models and item textures.
+        foreach ($wood in @('acacia', 'birch', 'cherry', 'dark_oak', 'jungle', 'mangrove', 'oak', 'pale_oak', 'spruce')) {
+            foreach ($kind in @('boat', 'chest_boat')) {
+                $path = "assets/minecraft/models/item/${wood}_$kind.json"
+                if (-not $merged.Remove($path)) { throw "Missing boat model for manual fix: $path" }
+            }
+        }
+        foreach ($kind in @('raft', 'chest_raft')) {
+            $path = "assets/minecraft/models/item/bamboo_$kind.json"
+            if (-not $merged.Remove($path)) { throw "Missing raft model for manual fix: $path" }
+        }
+
         # Cobblemon Interface's selection sprite is opaque over the selected item.
         $whimscapeIndex = [Array]::IndexOf($order, 'Whimscape_1.20.2-1.21.11_r7.zip')
         if ($whimscapeIndex -lt 0) { throw 'Missing Whimscape source for hotbar selection fix.' }
