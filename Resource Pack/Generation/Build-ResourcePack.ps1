@@ -140,6 +140,18 @@ try {
         $merged["assets/minecraft/models/item/$name.json"] =
             '{"parent":"minecraft:item/generated","textures":{"layer0":"minecraft:item/' + $name + '"}}'
 
+        foreach ($wood in @('apricorn', 'saccharine')) {
+            foreach ($kind in @('boat', 'chest_boat')) {
+                $name = "${wood}_$kind"
+                $model = "assets/cobblemon/models/item/$name.json"
+                $texture = "assets/cobblemon/textures/item/wood/$name.png"
+                if (-not $merged.ContainsKey($model)) { throw "Missing Cobblemon boat model for manual fix: $model" }
+                if (-not $merged.ContainsKey($texture)) { throw "Missing Cobblemon boat texture: $texture" }
+                $merged[$model] =
+                    '{"parent":"minecraft:item/generated","textures":{"layer0":"cobblemon:item/wood/' + $name + '"}}'
+            }
+        }
+
         # Vanilla Tweaks supplies 3D sign item models. Replace them with flat
         # icon models; placed standing, wall, and hanging signs keep their textures.
         foreach ($wood in @('acacia', 'bamboo', 'birch', 'cherry', 'crimson', 'dark_oak', 'jungle', 'mangrove', 'oak', 'pale_oak', 'spruce', 'warped')) {

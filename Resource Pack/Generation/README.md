@@ -47,6 +47,10 @@ The current ZIP's UUID is in `SUCCU_ResourcePack_26.10.30.uuid`; its SHA-1 is in
 
 The ZIP, `.uuid`, and `.sha1` files share the `SUCCU_ResourcePack_26.10.30a` basename. Their archive structure, model JSON, and texture references were checked locally. Test the icons in a chest or inventory with only this ZIP enabled and reload resources with F3+T; in-game rendering is still unverified.
 
+## October 30 custom boat icon correction
+
+`SUCCU_ResourcePack_26.10.30.zip` also replaces Cobblemon's apricorn and saccharine boat and chest boat item models with flat generated models using their existing item icons. Their placed-boat entity textures are unchanged. The four model references and PNG paths were checked locally; in-game rendering is still unverified.
+
 ## Floating nameplate comparison build
 
 If floating player and Pokémon names become black rectangles only while an Iris shader pack is active, use `SUCCU_ResourcePack_26.10.29d.zip` as a comparison build. It differs from `...29c.zip` only by omitting Cobblemon Interface's `assets/minecraft/shaders/core/rendertype_text.fsh` and `rendertype_text_intensity.fsh`, allowing Minecraft's built-in text shaders to load. Build another comparison ZIP with `powershell -ExecutionPolicy Bypass -File '.\Resource Pack\Generation\Build-ResourcePack.ps1' -UseVanillaTextShaders`. The normal build retains the original source shaders.
