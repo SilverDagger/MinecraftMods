@@ -125,6 +125,35 @@ try {
             if (-not $merged.Remove($path)) { throw "Missing raft model for manual fix: $path" }
         }
 
+        # The built-in chest boat fallback still renders missing textures in
+        # inventories. Write explicit flat item models using the merged icons.
+        foreach ($wood in @('acacia', 'birch', 'cherry', 'dark_oak', 'jungle', 'mangrove', 'oak', 'pale_oak', 'spruce')) {
+            $name = "${wood}_chest_boat"
+            $texture = "assets/minecraft/textures/item/$name.png"
+            if (-not $merged.ContainsKey($texture)) { throw "Missing flat item texture: $texture" }
+            $merged["assets/minecraft/models/item/$name.json"] =
+                '{"parent":"minecraft:item/generated","textures":{"layer0":"minecraft:item/' + $name + '"}}'
+        }
+        $name = 'bamboo_chest_raft'
+        $texture = "assets/minecraft/textures/item/$name.png"
+        if (-not $merged.ContainsKey($texture)) { throw "Missing flat item texture: $texture" }
+        $merged["assets/minecraft/models/item/$name.json"] =
+            '{"parent":"minecraft:item/generated","textures":{"layer0":"minecraft:item/' + $name + '"}}'
+
+        # Vanilla Tweaks supplies 3D sign item models. Replace them with flat
+        # icon models; placed standing, wall, and hanging signs keep their textures.
+        foreach ($wood in @('acacia', 'bamboo', 'birch', 'cherry', 'crimson', 'dark_oak', 'jungle', 'mangrove', 'oak', 'pale_oak', 'spruce', 'warped')) {
+            foreach ($kind in @('sign', 'hanging_sign')) {
+                $name = "${wood}_$kind"
+                $model = "assets/minecraft/models/item/$name.json"
+                $texture = "assets/minecraft/textures/item/$name.png"
+                if (-not $merged.ContainsKey($model)) { throw "Missing sign model for manual fix: $model" }
+                if (-not $merged.ContainsKey($texture)) { throw "Missing flat item texture: $texture" }
+                $merged[$model] =
+                    '{"parent":"minecraft:item/generated","textures":{"layer0":"minecraft:item/' + $name + '"}}'
+            }
+        }
+
         # Cobblemon Interface's selection sprite is opaque over the selected item.
         $whimscapeIndex = [Array]::IndexOf($order, 'Whimscape_1.20.2-1.21.11_r7.zip')
         if ($whimscapeIndex -lt 0) { throw 'Missing Whimscape source for hotbar selection fix.' }
@@ -174,8 +203,13 @@ try {
         }
         foreach ($pair in @($merged.GetEnumerator() | Sort-Object Key)) {
             $dest = $output.CreateEntry($pair.Key, [IO.Compression.CompressionLevel]::Optimal)
-            $sourceStream = $pair.Value.Open(); $destStream = $dest.Open()
-            try { $sourceStream.CopyTo($destStream) } finally { $sourceStream.Dispose(); $destStream.Dispose() }
+            if ($pair.Value -is [string]) {
+                $writer = [IO.StreamWriter]::new($dest.Open(), [Text.UTF8Encoding]::new($false))
+                try { $writer.Write($pair.Value) } finally { $writer.Dispose() }
+            } else {
+                $sourceStream = $pair.Value.Open(); $destStream = $dest.Open()
+                try { $sourceStream.CopyTo($destStream) } finally { $sourceStream.Dispose(); $destStream.Dispose() }
+            }
         }
     } finally { $output.Dispose() }
     $outputStream.Dispose(); $outputStream = $null
